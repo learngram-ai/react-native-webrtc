@@ -96,31 +96,40 @@ export default class RTCPeerConnection extends EventTarget(PEER_CONNECTION_EVENT
   _dataChannelIds: Set = new Set();
 
   constructor(configuration) {
+    console.log("🔥 🔥 react-native-webrtc constructor start")
     super();
     this._peerConnectionId = nextPeerConnectionId++;
     WebRTCModule.peerConnectionInit(configuration, this._peerConnectionId);
     this._registerEvents();
+    console.log("🔥 🔥 react-native-webrtc constructor end")
   }
 
   addStream(stream: MediaStream) {
+    console.log("🔥 🔥 react-native-webrtc addStream start")
       const index = this._localStreams.indexOf(stream);
       if (index !== -1) {
           return;
       }
       WebRTCModule.peerConnectionAddStream(stream._reactTag, this._peerConnectionId);
       this._localStreams.push(stream);
+    console.log("🔥 🔥 react-native-webrtc addStream end")
   }
 
   removeStream(stream: MediaStream) {
+    console.log("🔥 🔥 react-native-webrtc removeStream start")
+
       const index = this._localStreams.indexOf(stream);
       if (index === -1) {
           return;
       }
       this._localStreams.splice(index, 1);
       WebRTCModule.peerConnectionRemoveStream(stream._reactTag, this._peerConnectionId);
+    console.log("🔥 🔥 react-native-webrtc removeStream end")
+
   }
 
   createOffer(options) {
+    console.log("🔥 🔥 react-native-webrtc createOffer start")
     return new Promise((resolve, reject) => {
       WebRTCModule.peerConnectionCreateOffer(
         this._peerConnectionId,
@@ -136,6 +145,8 @@ export default class RTCPeerConnection extends EventTarget(PEER_CONNECTION_EVENT
   }
 
   createAnswer(options = {}) {
+    console.log("🔥 🔥 react-native-webrtc createAnswer start")
+
     return new Promise((resolve, reject) => {
       WebRTCModule.peerConnectionCreateAnswer(
         this._peerConnectionId,
@@ -151,10 +162,16 @@ export default class RTCPeerConnection extends EventTarget(PEER_CONNECTION_EVENT
   }
 
   setConfiguration(configuration) {
+    console.log("🔥 🔥 react-native-webrtc setConfiguration start")
+
     WebRTCModule.peerConnectionSetConfiguration(configuration, this._peerConnectionId);
+    console.log("🔥 🔥 react-native-webrtc setConfiguration end")
+
   }
 
   setLocalDescription(sessionDescription: RTCSessionDescription) {
+    console.log("🔥 🔥 react-native-webrtc setLocalDescription start")
+
     return new Promise((resolve, reject) => {
       WebRTCModule.peerConnectionSetLocalDescription(
         sessionDescription.toJSON ? sessionDescription.toJSON() : sessionDescription,
@@ -171,6 +188,8 @@ export default class RTCPeerConnection extends EventTarget(PEER_CONNECTION_EVENT
   }
 
   setRemoteDescription(sessionDescription: RTCSessionDescription) {
+    console.log("🔥 🔥 react-native-webrtc setRemoteDescription start")
+
     return new Promise((resolve, reject) => {
       WebRTCModule.peerConnectionSetRemoteDescription(
         sessionDescription.toJSON ? sessionDescription.toJSON() : sessionDescription,
@@ -187,6 +206,8 @@ export default class RTCPeerConnection extends EventTarget(PEER_CONNECTION_EVENT
   }
 
   addIceCandidate(candidate) {
+    console.log("🔥 🔥 react-native-webrtc addIceCandidate start")
+
     return new Promise((resolve, reject) => {
       WebRTCModule.peerConnectionAddICECandidate(
         candidate.toJSON ? candidate.toJSON() : candidate,
@@ -203,6 +224,8 @@ export default class RTCPeerConnection extends EventTarget(PEER_CONNECTION_EVENT
   }
 
   getStats(track) {
+    console.log("🔥 🔥 react-native-webrtc getStats start")
+
     // NOTE: This returns a Promise but the format of the results is still
     // the "legacy" one. The native side (in Oobj-C) doesn't yet support the
     // new format: https://bugs.chromium.org/p/webrtc/issues/detail?id=6872
@@ -233,31 +256,46 @@ export default class RTCPeerConnection extends EventTarget(PEER_CONNECTION_EVENT
   }
 
   getLocalStreams() {
+    console.log("🔥 🔥 react-native-webrtc getLocalStreams start")
+
     return this._localStreams.slice();
   }
 
   getRemoteStreams() {
+    console.log("🔥 🔥 react-native-webrtc getRemoteStreams start")
+
     return this._remoteStreams.slice();
   }
 
   close() {
+    console.log("🔥 🔥 react-native-webrtc close start")
     WebRTCModule.peerConnectionClose(this._peerConnectionId);
   }
 
   _getTrack(streamReactTag, trackId): MediaStreamTrack {
+    console.log("🔥 🔥 react-native-webrtc _getTrack start")
+
     const stream
       = this._remoteStreams.find(
           stream => stream._reactTag === streamReactTag);
+
+    console.log("🔥 🔥 react-native-webrtc _getTrack end")
 
     return stream && stream._tracks.find(track => track.id === trackId);
   }
 
   _unregisterEvents(): void {
+    console.log("🔥 🔥 react-native-webrtc _unregisterEvents start")
+
     this._subscriptions.forEach(e => e.remove());
     this._subscriptions = [];
+    console.log("🔥 🔥 react-native-webrtc _unregisterEvents end")
+
   }
 
   _registerEvents(): void {
+    console.log("🔥 🔥 react-native-webrtc _registerEvents start")
+
     this._subscriptions = [
       EventEmitter.addListener('peerConnectionOnRenegotiationNeeded', ev => {
         if (ev.id !== this._peerConnectionId) {
@@ -373,6 +411,8 @@ export default class RTCPeerConnection extends EventTarget(PEER_CONNECTION_EVENT
         this.dispatchEvent(new RTCDataChannelEvent('datachannel', {channel}));
       })
     ];
+    console.log("🔥 🔥 react-native-webrtc _registerEvents end")
+
   }
 
   /**
@@ -387,6 +427,8 @@ export default class RTCPeerConnection extends EventTarget(PEER_CONNECTION_EVENT
    * instance such as id
    */
   createDataChannel(label: string, dataChannelDict?: ?RTCDataChannelInit) {
+    console.log("🔥 🔥 react-native-webrtc createDataChannel start")
+
     let id;
     const dataChannelIds = this._dataChannelIds;
     if (dataChannelDict && 'id' in dataChannelDict) {
@@ -397,6 +439,7 @@ export default class RTCPeerConnection extends EventTarget(PEER_CONNECTION_EVENT
       if (dataChannelIds.has(id)) {
         throw new ResourceInUse('DataChannel id already in use: ' + id);
       }
+
     } else {
       // Allocate a new id.
       // TODO Remembering the last used/allocated id and then incrementing it to
@@ -416,6 +459,7 @@ export default class RTCPeerConnection extends EventTarget(PEER_CONNECTION_EVENT
         label,
         dataChannelDict);
     dataChannelIds.add(id);
+    console.log("🔥 🔥 react-native-webrtc createDataChannel end")
     return new RTCDataChannel(this._peerConnectionId, label, dataChannelDict);
   }
 }
